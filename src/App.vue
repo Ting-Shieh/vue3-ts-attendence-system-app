@@ -7,4 +7,7 @@
 @import '@/assets/styles/common.scss';
 @import '@/assets/styles/iconfont.scss';
 @import '@/assets/styles/reset.scss';
+.this {
+  border: 1px solid red;
+}
 </style>
