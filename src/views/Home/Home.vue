@@ -21,4 +21,15 @@ import HomeHeader from './components/HomeHeader.vue'
 import HomeMain from './components/HomeMain.vue'
 </script>
 <style lang="scss" scoped>
+.el-header{
+  box-shadow: 0 8px 24px -2px rgb(0 0 0 / 5%);
+}
+.el-aside{
+  box-shadow: 2px 0px 8px 0px rgb(29 35 41 / 5%);
+}
+.el-main{
+  display: flex;
+  flex-direction: column;
+  background: #f0f2f5;
+}
 </style>

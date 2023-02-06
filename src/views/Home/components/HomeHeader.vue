@@ -7,9 +7,9 @@
     </span>
     <span class="home-header-title">在線考勤系統</span>
     <el-dropdown>
-      <el-icon :size="20">
-        <Bell />
-      </el-icon>
+      <el-badge class="home-header-badge">
+        <el-icon :size="20"><Bell /></el-icon>
+      </el-badge>
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item>暫無消息</el-dropdown-item>
@@ -17,12 +17,10 @@
       </template>
     </el-dropdown>
     <el-dropdown>
-      <el-badge class="home-header-badge">
-        <el-space>
-          <el-avatar size="small" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
-          黃蓉
-        </el-space>
-      </el-badge>
+      <el-space class="home-header-space">
+        <el-avatar size="small" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
+        黃蓉
+      </el-space>
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item>個人中心</el-dropdown-item>
@@ -62,7 +60,10 @@
     font-weight: 700;
     margin-right: auto;
   }
-  .home-header-badge{
+  // .home-header-badge{
+  //   margin-left: 20px;
+  // }
+  .home-header-space{
     margin-left: 20px;
   }
 }
