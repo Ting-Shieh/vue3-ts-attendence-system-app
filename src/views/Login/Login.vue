@@ -6,7 +6,7 @@
         <i class="iconfont icon-icon-test"></i>
         <i class="iconfont icon-typescript"></i>
       </span>
-      <div class="header-title">在線考勤系統</div>
+      <span class="header-title">在線考勤系統</span>
     </div>
     <div class="desc">學習typescript</div>
     <el-form
