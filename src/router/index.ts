@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import _ from 'lodash'
+import store from '@/store' // 此處無法使用useStore
+import type { StateAll } from '@/store'
 
 const homeCpt = () => import(/* webpackChunkName: "home" */'@/views/Home/Home.vue')
 const loginCpt = () => import(/* webpackChunkName: "login" */ '@/views/Login/Login.vue')
@@ -84,6 +87,32 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+// 全局守衛
+router.beforeEach((to, from , next) => {
+  const token = (store.state as StateAll).users.token
+  const infos = (store.state as StateAll).users.infos
+
+  if (to.meta.auth && _.isEmpty(infos)) {
+    if (token) {
+      // 校驗token合法
+      store.dispatch('users/getUserInfos').then((res)=>{
+        if (res.data.errcode === 0) {
+          store.commit('users/updateInfos', res.data.infos)
+          next()
+        }
+      })
+    } else {
+      next('/login')
+    }
+  } else {
+    if (token && to.path === '/login') {
+      next('/')
+    } else {
+      next()
+    }
+  }
 })
 
 export default router

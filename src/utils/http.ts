@@ -1,6 +1,8 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
-
+import store from '@/store'
+import type { StateAll } from '@/store'
+import { ElMessage } from "element-plus";
 /**
  * https://axios-http.com/zh/docs/interceptors
  */
@@ -13,7 +15,9 @@ const instance = axios.create({
 
 // 添加请求拦截器
 instance.interceptors.request.use(function (config) {
-  // 在发送请求之前做些什么
+  if (config.headers) {
+    config.headers.authorization = (store.state as StateAll).users.token
+  }
   return config;
 }, function (error) {
   // 对请求错误做些什么
@@ -22,6 +26,16 @@ instance.interceptors.request.use(function (config) {
 
 // 添加响应拦截器
 instance.interceptors.response.use(function (response) {
+  // 偽造或是超時token
+  if (response.data.errmsg === 'token error') {
+    ElMessage.error('token error')
+    store.commit('users/clearToken')
+    // 不推薦編程式路由，因為跳過去後不會刷新頁面
+    // 重新登入，還原所有共享狀態
+    setTimeout(() => {
+      window.location.replace('/login')
+    }, 1000)
+  }
   // 对响应数据做点什么
   return response;
 }, function (error) {

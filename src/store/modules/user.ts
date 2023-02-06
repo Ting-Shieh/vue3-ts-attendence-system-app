@@ -3,20 +3,35 @@ import type { State } from '../index'
 import http from '@/utils/http'
 import { pa } from 'element-plus/es/locale'
 
+interface Infos {
+  [index: string]: unknown
+}
 export interface UserState {
-  token: string
+  token: string,
+  infos: Infos
 }
 const state: UserState = {
-  token: ''
+  token: '',
+  infos: {}
 }
 const mutations: MutationTree<UserState> = {
   updateToken (state, payload) {
     state.token = payload
+  },
+  updateInfos (state, payload) {
+    state.infos = payload
+  },
+  clearToken (state) {
+    state.token = ''
   }
+
 }
 const actions: ActionTree<UserState, State> = {
   login (context, payload) {
     return http.post('/users/login', payload)
+  },
+  getUserInfos() {
+    return http.get('/users/infos')
   }
 }
 const getters: GetterTree<UserState, State> = {}
