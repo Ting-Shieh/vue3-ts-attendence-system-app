@@ -25,14 +25,14 @@ const routes: Array<RouteRecordRaw> = [
     component: homeCpt,
     redirect: '/sign',
     meta: {
-      menu: false,
+      menu: true,
       title: '考勤管理',
       icon: 'document-copy',
       auth: true
     },
     children: [
       {
-        path: '/sign',
+        path: 'sign',
         name: 'sign',
         meta: {
           menu: true,

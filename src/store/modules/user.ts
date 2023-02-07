@@ -1,7 +1,6 @@
 import type { MutationTree, ActionTree, GetterTree } from 'vuex'
 import type { State } from '../index'
 import http from '@/utils/http'
-import { pa } from 'element-plus/es/locale'
 
 interface Infos {
   [index: string]: unknown
