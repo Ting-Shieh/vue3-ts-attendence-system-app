@@ -18,19 +18,31 @@
     </el-dropdown>
     <el-dropdown>
       <el-space class="home-header-space">
-        <el-avatar size="small" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
-        黃蓉
+        <el-avatar size="small" :src="(head as string)" />
+        {{ name }}
       </el-space>
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item>個人中心</el-dropdown-item>
-          <el-dropdown-item>退出</el-dropdown-item>
+          <el-dropdown-item @click="handleLogout">退出</el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
   </div>
 </template>
 <script lang="ts" setup>
+import { computed } from 'vue'
+import { useStore } from '@/store'
+const store = useStore()
+const head = computed(() => store.state.users.infos.head)
+const name = computed(() => store.state.users.infos.name)
+
+const handleLogout = () => {
+  store.commit('users/clearToken')
+  setTimeout(() => {
+    window.location.replace('/login')
+  }, 300)
+}
 </script>
 <style lang="scss" scoped>
 .home-header {
