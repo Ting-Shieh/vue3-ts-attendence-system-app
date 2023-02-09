@@ -40,7 +40,24 @@ const routes: Array<RouteRecordRaw> = [
           icon: 'calendar',
           auth: true
         },
-        component: signCpt
+        component: signCpt,
+        beforeEnter (to, from , next) {
+          const usersInfos = (store.state as StateAll).users.infos
+          const signsInfos = (store.state as StateAll).signs.infos
+          // console.log(usersInfos)
+          // console.log('signsInfos:',signsInfos)
+          if (_.isEmpty(signsInfos)) {
+            store
+              .dispatch('signs/getTime', { userid: usersInfos._id })
+              .then((res) => {
+                // console.log(res.data)
+                if (res.data.errcode === 0) {
+                  store.commit('signs/updateInfos', res.data.infos)
+                }
+              })
+          }
+          next()
+        }
       },
       {
         path: 'check',

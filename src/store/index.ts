@@ -6,7 +6,7 @@ import type { Store } from 'vuex'
 import type { InjectionKey } from 'vue'
 import users from './modules/user'
 import news from './modules/news'
-import sign from './modules/sign'
+import signs from './modules/sign'
 import checks from './modules/checks'
 import type { UserState } from './modules/user'
 import type { NewsState } from './modules/news'
@@ -18,7 +18,7 @@ export interface State {}
 export interface StateAll extends State {
   users: UserState,
   news: NewsState,
-  sign: SignState,
+  signs: SignState,
   checks: ChecksState
 }
 
@@ -47,7 +47,7 @@ export default createStore({
   modules: {
     users,
     news,
-    sign,
+    signs,
     checks
   },
   plugins: [vuexLocal.plugin]
