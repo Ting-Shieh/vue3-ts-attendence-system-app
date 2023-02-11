@@ -18,7 +18,7 @@
   </el-descriptions>
   <el-calendar v-model="date">
     <template #header>
-      <el-button type="primary">在線簽到</el-button>
+      <el-button type="primary" @click="singOnLine">在線簽到</el-button>
       <el-space>
         <el-button plain>{{year}}年</el-button>
         <el-select v-model="month" @change="handleChange">
@@ -31,15 +31,31 @@
         </el-select>
       </el-space>
     </template>
+    <template #dateCell="{ data }">
+      <div class="">
+        {{ renderDate(data.day) }}
+      </div>
+      <div class="show-time">
+        {{ renderTime(data.day) }}
+      </div>
+    </template>
   </el-calendar>
 </template>
 <script lang="ts" setup>
 import {useRouter} from 'vue-router'
-import { ref, reactive } from 'vue'
-const date = ref(new Date())
+import { ref, reactive, computed } from 'vue'
+import { useStore } from '@/store'
+import { ElMessage } from 'element-plus'
+
+const router = useRouter()
+const store = useStore()
+
+const date = ref(new Date('2022-07-02'))
 const year = date.value.getFullYear()
 const month = ref(date.value.getMonth() + 1)
-const router = useRouter()
+const signsInfos = computed(() => store.state.signs.infos)
+const usersInfos = computed(() => store.state.users.infos)
+
 enum DetailKey {
   normal = '正常出勤',
   absent = '曠工',
@@ -67,6 +83,32 @@ const handleChange = () => {
 const goToException = () => {
   router.push('/exception')
 }
+
+const renderDate = (d: string) => {
+  return d.split('-')[2]
+}
+const renderTime = (d: string) => {
+  // console.log(signsInfos.value.time)
+  // console.log(Object.keys((signsInfos.value.time as { [index: string]: unknown })))
+  const [, month, date] = d.split('-')
+  const result = ((signsInfos.value.time as { [index: string]: unknown })[month] as { [index: string]: unknown })[date]
+  // const result = (signsInfos.value.time as { [index: string]: unknown })
+  if ( Array.isArray(result)){
+    return result.join('-')
+  } else {
+    return result
+  }
+}
+const singOnLine = () => {
+  store
+    .dispatch('signs/putTime', { userid: usersInfos.value._id })
+    .then((res) => {
+      if(res.data.errcode === 0) {
+        store.commit('signs/updateInfos', res.data.infos)
+        ElMessage.success('簽到成功')
+      }
+    })
+}
 </script>
 <style lang="scss" scoped>
 .el-descriptions {
@@ -74,5 +116,12 @@ const goToException = () => {
 }
 .el-select{
   width: 80px;
+}
+.show-time {
+  text-align: center;
+  line-height: 40px;
+  white-space: nowrap; // 多餘的隱藏
+  text-overflow: ellipsis; // ...
+  overflow: hidden;
 }
 </style>

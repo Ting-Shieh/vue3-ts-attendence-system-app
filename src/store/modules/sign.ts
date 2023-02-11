@@ -18,6 +18,15 @@ const mutations: MutationTree<SignState> = {
 const actions: ActionTree<SignState, State> = {
   getTime (context, payload){
     return http.get('/signs/time', payload)
+  },
+  /**
+   * 在線簽到
+   * @param context
+   * @param payload
+   * @returns 
+   */
+  putTime (context, payload){
+    return http.put('/signs/time', payload)
   }
 }
 const getters: GetterTree<SignState, State> = {}
