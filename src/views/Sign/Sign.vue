@@ -130,7 +130,10 @@ const handleChange = () => {
   date.value = new Date(`${year}.${month.value}`)
 }
 const goToException = () => {
-  router.push('/exception')
+  router.push({
+    path: '/exception',
+    query: { month: month.value }
+  })
 }
 
 const renderDate = (d: string) => {

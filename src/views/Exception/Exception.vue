@@ -64,13 +64,24 @@
   </el-row>
 </template>
 <script lang="ts" setup>
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+const route = useRoute()
+const router = useRouter()
 const date = ref(new Date())
 const year = date.value.getFullYear()
-const month = ref(date.value.getMonth() + 1)
+const month = ref(Number(route.query.month) || date.value.getMonth() + 1)
+
 const handleChange = () => {
   date.value = new Date(`${year}.${month.value}`)
 }
+
+watch(month, () => {
+  // 不用跳轉，當前頁改參數而已
+  router.push({
+    query: { month: month.value}
+  })
+})
 </script>
 <style lang="scss" scoped>
 .el-select{
