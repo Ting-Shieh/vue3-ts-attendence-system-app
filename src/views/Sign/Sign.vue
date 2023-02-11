@@ -31,7 +31,7 @@
         </el-select>
       </el-space>
     </template>
-    <template #dateCell="{ data }">
+    <template #date-cell="{ data }">
       <div class="">
         {{ renderDate(data.day) }}
       </div>
@@ -42,15 +42,16 @@
   </el-calendar>
 </template>
 <script lang="ts" setup>
+import { toZero } from '@/utils/commons'
 import {useRouter} from 'vue-router'
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watchEffect } from 'vue'
 import { useStore } from '@/store'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const store = useStore()
 
-const date = ref(new Date('2022-07-02'))
+const date = ref(new Date())
 const year = date.value.getFullYear()
 const month = ref(date.value.getMonth() + 1)
 const signsInfos = computed(() => store.state.signs.infos)
@@ -64,7 +65,14 @@ enum DetailKey {
   early = '早退',
   lateAndEarly = '遲到並早退'
 }
-
+enum DetailKeyCN {
+  normal = '正常出勤',
+  absent = '旷工',
+  miss = '漏打卡',
+  late = '迟到',
+  early = '早退',
+  lateAndEarly = '迟到并早退'
+}
 const detailValue = reactive({
   normal: 0,
   absent: 0,
@@ -77,6 +85,47 @@ const detailState = reactive({
   type: 'success' as 'success' | 'danger',
   text: '正常' as '正常' | '異常'
 })
+watchEffect((reset) => {
+  const detailMonth = ((signsInfos.value.detail as {[index: string]: unknown})[toZero(month.value)] as {[index: string]: unknown});
+  // console.log(detailMonth)
+  for(const key in detailMonth) {
+    // console.log(detailMonth[key])
+    switch (detailMonth[key]) {
+      case DetailKeyCN.normal: 
+        detailValue.normal++
+        break;
+      case DetailKeyCN.absent: 
+        detailValue.absent++
+        break;
+      case DetailKeyCN.miss: 
+        detailValue.miss++
+        break;
+      case DetailKeyCN.late: 
+        detailValue.late++
+        break;
+      case DetailKeyCN.early: 
+        detailValue.early++
+        break;
+      case DetailKeyCN.lateAndEarly: 
+        detailValue.lateAndEarly++
+        break;
+    }
+  }
+  // 考勤狀態
+  for(const key in detailValue){
+    if(key !== 'normal' && detailValue[key as keyof typeof detailValue] !== 0){
+      detailState.type = 'danger'
+      detailState.text = '異常'
+    }
+  }
+  reset(()=> {
+    detailState.type = 'success'
+    detailState.text = '正常'
+    for(const key in detailValue) {
+      detailValue[key as keyof typeof detailValue] = 0
+    }
+  })
+})
 const handleChange = () => {
   date.value = new Date(`${year}.${month.value}`)
 }
@@ -88,16 +137,17 @@ const renderDate = (d: string) => {
   return d.split('-')[2]
 }
 const renderTime = (d: string) => {
-  // console.log(signsInfos.value.time)
-  // console.log(Object.keys((signsInfos.value.time as { [index: string]: unknown })))
-  const [, month, date] = d.split('-')
-  const result = ((signsInfos.value.time as { [index: string]: unknown })[month] as { [index: string]: unknown })[date]
-  // const result = (signsInfos.value.time as { [index: string]: unknown })
-  if ( Array.isArray(result)){
-    return result.join('-')
-  } else {
-    return result
-  }
+  // // console.log(Object.keys((signsInfos.value.time as { [index: string]: unknown })))
+  const [, res_month, res_date] = d.split('-')
+  // const result = ((signsInfos.value.time as {[index: string]: unknown})[res_month] as {[index: string]: unknown})[res_date]
+  
+  // if ( Array.isArray(result)){
+  //   return result.join('-')
+  // } else {
+  //   return ['test', 'test2']
+  // }
+  
+  return signsInfos.value.time
 }
 const singOnLine = () => {
   store
