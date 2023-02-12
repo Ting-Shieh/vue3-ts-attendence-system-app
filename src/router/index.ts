@@ -82,16 +82,16 @@ const routes: Array<RouteRecordRaw> = [
         component: applyCpt,
         beforeEnter (to, from , next) {
           const usersInfos = (store.state as StateAll).users.infos
-          const signsInfos = (store.state as StateAll).signs.infos
+          const checksApplyList = (store.state as StateAll).checks.applyList
           // console.log(usersInfos)
           // console.log('signsInfos:',signsInfos)
-          if (_.isEmpty(signsInfos)) {
+          if (_.isEmpty(checksApplyList)) {
             store
-              .dispatch('signs/getTime', { userid: usersInfos._id })
+              .dispatch('checks/getApply', { applicantid: usersInfos._id })
               .then((res) => {
                 // console.log(res.data)
                 if (res.data.errcode === 0) {
-                  store.commit('signs/updateInfos', res.data.infos)
+                  store.commit('checks/updateApplyList', res.data.rets)
                 }
               })
           }
