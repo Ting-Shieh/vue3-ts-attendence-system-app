@@ -1,6 +1,6 @@
 <template>
   <div class="exception-title">
-    <el-button type="primary">異常處理</el-button>
+    <el-button type="primary" @click="goToApply">異常處理</el-button>
     <el-space>
     <el-button type="primary" plain>{{ year }}年</el-button>
       <el-select v-model="month" @change="handleChange">
@@ -18,13 +18,15 @@
       <el-empty v-if="false" description="暫無異常考勤" />
       <el-timeline v-else>
         <el-timeline-item
+          v-for="item in detailMonth"
+          :key="item[0]"
           placement="top"
-          timestamp="2022/02/14"
+          :timestamp="`${year}/${month}/${item[0]}`"
         >
           <el-card>
             <el-space>
-              <h4 class="">曠工</h4>
-              <p class="">考勤資訊：暫無打卡紀錄</p>
+              <h4 class="">{{ item[1] }}</h4>
+              <p class="">考勤資訊：{{ renderTime(item[0]) }}</p>
             </el-space>
           </el-card>
         </el-timeline-item>
@@ -64,18 +66,42 @@
   </el-row>
 </template>
 <script lang="ts" setup>
-import {ref, watch} from 'vue'
+import {ref, watch, computed} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useStore } from '@/store'
+import { toZero } from '@/utils/commons'
+
 const route = useRoute()
 const router = useRouter()
+const store = useStore()
+
 const date = ref(new Date())
 const year = date.value.getFullYear()
 const month = ref(Number(route.query.month) || date.value.getMonth() + 1)
+const signsInfos = computed(() => store.state.signs.infos)
+const ret = ((signsInfos.value.detail as {[index: string]: unknown})[toZero(month.value)]as {[index: string]: unknown})
+const detailMonth = computed(() => Object.entries(ret).filter(v => v[1] !== '正常出勤').sort())
+console.log(ret, 'ret')
+// key:[key,value]
+console.log(Object.entries(ret))
+// console.log(Object.entries(ret).filter(v => v[1] !== '正常出勤').sort())
 
 const handleChange = () => {
   date.value = new Date(`${year}.${month.value}`)
 }
-
+const goToApply = () => {
+  router.push({
+    path: '/apply'
+  })
+}
+const renderTime = (d: string) => {
+  const ret = ((signsInfos.value.time as {[index: string]: unknown})[toZero(month.value)] as {[index: string]: unknown})[d]
+  if (Array.isArray(ret)) {
+    return ret.join('-')
+  } else {
+    return '暫無打卡紀錄'
+  }
+}
 watch(month, () => {
   // 不用跳轉，當前頁改參數而已
   router.push({
