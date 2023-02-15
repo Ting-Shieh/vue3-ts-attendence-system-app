@@ -1,6 +1,6 @@
 <template>
   <div class="apply-title">
-    <el-button type="primary">新增審批</el-button>
+    <el-button type="primary" @click="handleDialogOpen">新增審批</el-button>
     <el-space class="">
       <el-input v-model="searchWord" placeholder="請輸入搜索關鍵字"></el-input>
       <el-button type="primary" icon="search">搜索</el-button>
@@ -35,10 +35,83 @@
       background
     ></el-pagination>
   </div>
+  <el-dialog
+    v-model="dialogVisible"
+    title="新增審批"
+    width="500px"
+    :before-close="handleDialoClose"
+  >
+    <el-form
+      ref="applyFormRef"
+      :model="applyForm"
+      :rules="applyFormRules"
+      label-width="80px"
+    >
+      <el-form-item
+        label="審批人"
+        prop="approvername"
+      >
+        <el-select
+          v-model="applyForm.approvername"
+          placeholder="請選擇審批人"
+        >
+          <el-option
+            v-for="item in approver"
+            :key="(item._id as string)"
+            :value="(item._id as string)"
+            :label="(item.name as string)" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="審批事由" prop="reason">
+        <el-select
+          v-model="applyForm.reason"
+          placeholder="請選擇審批事由"
+        >
+          <el-option value="年假" label="年假" />
+          <el-option value="事假" label="事假" />
+          <el-option value="病假" label="病假" />
+          <el-option value="外出" label="外出" />
+          <el-option value="補簽卡" label="補簽卡" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="時間" prop="time">
+        <el-date-picker
+          v-model="applyForm.time"
+          type="datetimerange"
+          range-separator="~"
+          start-placeholder="起始日期"
+          end-placeholder="結束日期"
+        ></el-date-picker>
+      </el-form-item>
+      <el-form-item label="備註" prop="note">
+        <el-input
+          v-model="applyForm.note"
+          type="textarea"
+          :autosize="{minRows: 4, maxRows:6}"
+          placeholder="請輸入備註"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="primary" @click="resetForm(applyFormRef)">取消</el-button>
+      <el-button type="primary" @click="submitForm(applyFormRef)">送出</el-button>
+    </template>
+  </el-dialog>
 </template>
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useStore } from '@/store'
+import type {DateModelType, FormInstance, FormRules} from 'element-plus'
+
+interface ApplyForm {
+  applicantid: string,
+  applicantname: string,
+  reason: string,
+  time: [DateModelType, DateModelType],
+  note: string,
+  approverid: string,
+  approvername: string
+}
 
 const store = useStore()
 
@@ -47,7 +120,23 @@ const approverType = ref(defaultType)
 const searchWord = ref('')
 const pageSize = ref(10)
 const pageCurrent = ref(1)
-console.log('//', store.state.checks.applyList)
+const dialogVisible = ref(false)
+const applyFormRef = ref<FormInstance>()
+const applyForm = reactive<ApplyForm>({
+  applicantid: '',
+  applicantname: '',
+  reason: '',
+  time: ['',''],
+  note: '',
+  approverid: '',
+  approvername: ''
+})
+const applyFormRules = reactive<FormRules>({
+  
+})
+const usersInfos = computed(() => store.state.users.infos)
+const approver = computed(() => usersInfos.value.approver as {[index: string]: unknown}[])
+
 const applyList = computed(() => store.state.checks.applyList.filter(
   (item) => 
   (item.state === approverType.value || approverType.value === defaultType) &&
@@ -60,6 +149,28 @@ const pageApplyList = computed(() => applyList.value.slice(
 
 const handlePageChange = (page: number) => {
   pageCurrent.value = page
+}
+const handleDialogOpen = () => {
+  dialogVisible.value = true
+}
+const handleDialoClose = () => {
+  dialogVisible.value = false
+}
+const submitForm = (formEl:FormInstance|undefined) => {
+  if(!formEl) return
+  formEl.validate(valid => {
+    if (valid) {
+      console.log(applyForm)
+      dialogVisible.value = false
+    } else {
+      dialogVisible.value = false
+      return false
+    }
+  })
+}
+const resetForm= (formEl:FormInstance|undefined) => {
+  if(!formEl) return
+  formEl.resetFields()
 }
 </script>
 <style lang="scss" scoped>
