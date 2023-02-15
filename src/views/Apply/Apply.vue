@@ -102,7 +102,8 @@
 import { ref, computed, reactive } from 'vue'
 import { useStore } from '@/store'
 import type {DateModelType, FormInstance, FormRules} from 'element-plus'
-
+import moment from 'moment'
+import { ElMessage } from 'element-plus'
 interface ApplyForm {
   applicantid: string,
   applicantname: string,
@@ -131,8 +132,30 @@ const applyForm = reactive<ApplyForm>({
   approverid: '',
   approvername: ''
 })
+const validatorTime = (
+    rule: unknown,
+    value: [DateModelType, DateModelType],
+    callback: (arg?: Error) => void
+  ) => {
+  if (!value[0] && !value[1]) {
+    callback(new Error('請選擇請假時間'))
+  } else {
+    callback()
+  }
+}
 const applyFormRules = reactive<FormRules>({
-  
+  approvername: [
+    { required: true, message: '請輸入審批人', trigger: 'blur' }
+  ],
+  reason: [
+    { required: true, message: '請選擇請假事由', trigger: 'blur' }
+  ],
+  time: [
+    { validator: validatorTime, trigger: 'blur' }
+  ],
+  note: [
+    { required: true, message: '請添加審批備註', trigger: 'blur' }
+  ]
 })
 const usersInfos = computed(() => store.state.users.infos)
 const approver = computed(() => usersInfos.value.approver as {[index: string]: unknown}[])
@@ -160,8 +183,30 @@ const submitForm = (formEl:FormInstance|undefined) => {
   if(!formEl) return
   formEl.validate(valid => {
     if (valid) {
-      console.log(applyForm)
-      dialogVisible.value = false
+      // console.log(applyForm)
+      applyForm.applicantid = usersInfos.value._id as string
+      applyForm.applicantname = usersInfos.value.name as string
+      applyForm.approverid = (approver.value.find(v => v.name === applyForm.approvername) as {[index:string]: unknown})._id as string
+      applyForm.time[0] = moment(applyForm.time[0]).format('YYYY-MM-DD hh:mm:ss')
+      applyForm.time[1] = moment(applyForm.time[1]).format('YYYY-MM-DD hh:mm:ss')
+      store
+        .dispatch('checks/postApply', applyForm)
+        .then(res => {
+          if (res.data.errorcode === 0) {
+            // 添加之後頁面更新
+            store
+              .dispatch('checks/getApply', { applicantid: usersInfos.value._id })
+              .then((res) => {
+                if (res.data.errcode === 0) {
+                  store.commit('checks/updateApplyList', res.data.rets)
+                }
+              })
+            ElMessage.success('新增審批成功')
+            resetForm(applyFormRef.value)
+            handleDialoClose()
+          }
+        })
+      
     } else {
       dialogVisible.value = false
       return false

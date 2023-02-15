@@ -19,7 +19,10 @@ const mutations: MutationTree<ChecksState> = {
 const actions: ActionTree<ChecksState, State> = {
   getApply(context, payload) {
     return http.get('/checks/apply', payload)
-  }
+  },
+  postApply(context, payload) {
+    return http.post('/checks/apply', payload)
+  },
 }
 const getters: GetterTree<ChecksState, State> = {}
 
