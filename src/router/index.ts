@@ -68,7 +68,23 @@ const routes: Array<RouteRecordRaw> = [
           icon: 'finished',
           auth: true
         },
-        component: checkCpt
+        component: checkCpt,
+        beforeEnter (to, from , next) {
+          const usersInfos = (store.state as StateAll).users.infos
+          const checksCheckList = (store.state as StateAll).checks.checkList
+          // console.log(usersInfos)
+          // console.log('signsInfos:',signsInfos)
+          if (_.isEmpty(checksCheckList)) {
+            store
+              .dispatch('checks/getApply', { approverid: usersInfos._id })
+              .then((res) => {
+                if (res.data.errcode === 0) {
+                  store.commit('checks/updateCheckList', res.data.rets)
+                }
+              })
+          }
+          next()
+        }
       },
       {
         path: 'apply',
