@@ -28,6 +28,9 @@ const actions: ActionTree<ChecksState, State> = {
   postApply(context, payload) {
     return http.post('/checks/apply', payload)
   },
+  putApply(context, payload) {
+    return http.put('/checks/apply', payload)
+  },
 }
 const getters: GetterTree<ChecksState, State> = {}
 
