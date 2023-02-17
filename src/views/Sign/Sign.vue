@@ -33,7 +33,7 @@
     </template>
     <template #date-cell="{ data }">
       <div class="">
-        {{ renderDate(data.day) }}
+        {{ renderDate(data.day) }} 
       </div>
       <div class="show-time">
         {{ renderTime(data.day) }}
@@ -142,15 +142,13 @@ const renderDate = (d: string) => {
 const renderTime = (d: string) => {
   // // console.log(Object.keys((signsInfos.value.time as { [index: string]: unknown })))
   const [, res_month, res_date] = d.split('-')
-  // const result = ((signsInfos.value.time as {[index: string]: unknown})[res_month] as {[index: string]: unknown})[res_date]
+  const result = ((signsInfos.value.time as {[index: string]: unknown})[res_month] as {[index: string]: unknown})[res_date]
   
-  // if ( Array.isArray(result)){
-  //   return result.join('-')
-  // } else {
-  //   return ['test', 'test2']
-  // }
+  if ( Array.isArray(result)){
+    return result.join('-')
+  }
   
-  return signsInfos.value.time
+  // return signsInfos.value.time
 }
 const singOnLine = () => {
   store

@@ -7,12 +7,20 @@
     </span>
     <span class="home-header-title">在線考勤系統</span>
     <el-dropdown>
-      <el-badge class="home-header-badge">
+      <el-badge class="home-header-badge" :is-dot="isDot">
         <el-icon :size="20"><Bell /></el-icon>
       </el-badge>
       <template #dropdown>
         <el-dropdown-menu>
-          <el-dropdown-item>暫無消息</el-dropdown-item>
+          <el-dropdown-item
+            @click="goTo('/apply')"
+            v-if="newsInfo.applicant"
+          >有審批結果消息</el-dropdown-item>
+          <el-dropdown-item
+            @click="goTo('/check')"
+            v-if="newsInfo.approver"
+          >有審批請求消息</el-dropdown-item>
+          <el-dropdown-item v-if="!newsInfo.applicant && !newsInfo.approver">暫無消息</el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -33,15 +41,23 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useStore } from '@/store'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const store = useStore()
 const head = computed(() => store.state.users.infos.head)
 const name = computed(() => store.state.users.infos.name)
 
+const newsInfo = computed(() => store.state.news.info)
+const isDot = computed(() => (newsInfo.value.applicant || newsInfo.value.approver) as boolean)
 const handleLogout = () => {
   store.commit('users/clearToken')
   setTimeout(() => {
     window.location.replace('/login')
   }, 300)
+}
+
+const goTo = (r: string) => {
+  router.push({path: r})
 }
 </script>
 <style lang="scss" scoped>

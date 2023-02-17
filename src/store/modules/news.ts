@@ -1,10 +1,27 @@
+import http from '@/utils/http'
 import type { MutationTree, ActionTree, GetterTree } from 'vuex'
 import type { State } from '../index'
 
-export interface NewsState {}
-const state: NewsState = {}
-const mutations: MutationTree<NewsState> = {}
-const actions: ActionTree<NewsState, State> = {}
+interface Info {
+  [index: string]: unknown
+}
+
+export interface NewsState {
+  info: Info
+}
+const state: NewsState = {
+  info: {}
+}
+const mutations: MutationTree<NewsState> = {
+  updateInfo(state, payload) {
+    state.info = payload
+  }
+}
+const actions: ActionTree<NewsState, State> = {
+  getRemind(context, payload){
+    return http.get('news/remind', payload)
+  }
+}
 const getters: GetterTree<NewsState, State> = {}
 
 export default {
