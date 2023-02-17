@@ -72,19 +72,25 @@ const routes: Array<RouteRecordRaw> = [
           auth: true
         },
         component: checkCpt,
-        beforeEnter (to, from , next) {
+        async beforeEnter (to, from , next) {
           const usersInfos = (store.state as StateAll).users.infos
           const checksCheckList = (store.state as StateAll).checks.checkList
-          // console.log(usersInfos)
-          // console.log('signsInfos:',signsInfos)
+          const newsInfo = (store.state as StateAll).news.info
+
           if (_.isEmpty(checksCheckList)) {
-            store
-              .dispatch('checks/getApply', { approverid: usersInfos._id })
-              .then((res) => {
-                if (res.data.errcode === 0) {
-                  store.commit('checks/updateCheckList', res.data.rets)
-                }
-              })
+            const res = await store.dispatch('checks/getApply', { approverid: usersInfos._id })
+              if (res.data.errcode === 0) {
+                store.commit('checks/updateCheckList', res.data.rets)
+              }
+          }
+          if (newsInfo.approver) {
+            const res = await store.dispatch('news/putRemind', { 
+              userid: usersInfos._id,
+              approver: false
+            })
+            if (res.data.errcode === 0) {
+              store.commit('news/updateInfo', res.data.info)
+            }
           }
           next()
         }
@@ -99,23 +105,44 @@ const routes: Array<RouteRecordRaw> = [
           auth: true
         },
         component: applyCpt,
-        beforeEnter (to, from , next) {
+        async beforeEnter (to, from , next) {
           const usersInfos = (store.state as StateAll).users.infos
           const checksApplyList = (store.state as StateAll).checks.applyList
+          const newsInfo = (store.state as StateAll).news.info
           // console.log(usersInfos)
           // console.log('signsInfos:',signsInfos)
           if (_.isEmpty(checksApplyList)) {
-            store
-              .dispatch('checks/getApply', { applicantid: usersInfos._id })
-              .then((res) => {
-                // console.log(res.data)
-                if (res.data.errcode === 0) {
-                  store.commit('checks/updateApplyList', res.data.rets)
-                }
-              })
+            const res = await store.dispatch('checks/getApply', { applicantid: usersInfos._id })
+            if (res.data.errcode === 0) {
+              store.commit('checks/updateApplyList', res.data.rets)
+            }
+          }
+          if (newsInfo.applicant) {
+            const res = await store.dispatch('news/putRemind', { 
+              userid: usersInfos._id,
+              applicant: false
+            })
+            if (res.data.errcode === 0) {
+              store.commit('news/updateInfo', res.data.info)
+            }
           }
           next()
         }
+        // beforeEnter (to, from , next) {
+        //   const usersInfos = (store.state as StateAll).users.infos
+        //   const checksApplyList = (store.state as StateAll).checks.applyList
+        //   if (_.isEmpty(checksApplyList)) {
+        //     store
+        //       .dispatch('checks/getApply', { applicantid: usersInfos._id })
+        //       .then((res) => {
+        //         // console.log(res.data)
+        //         if (res.data.errcode === 0) {
+        //           store.commit('checks/updateApplyList', res.data.rets)
+        //         }
+        //       })
+        //   }
+        //   next()
+        // }
       },
       {
         path: 'exception',

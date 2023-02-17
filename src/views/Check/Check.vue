@@ -25,8 +25,8 @@
       <el-table-column prop="note" label="備註"></el-table-column>
       <el-table-column label="操作" width="120">
         <template #default="scope">
-          <el-button type="success" size="small" icon="check" @click="handlePutApply(scope.row._id, '已通过')" circle />
-          <el-button type="danger" size="small" icon="close" @click="handlePutApply(scope.row._id, '未通过')" circle />
+          <el-button type="success" size="small" icon="check" @click="handlePutApply(scope.row._id, '已通过', scope.row.approverid)" circle />
+          <el-button type="danger" size="small" icon="close" @click="handlePutApply(scope.row._id, '未通过', scope.row.approverid)" circle />
         </template>
       </el-table-column>
       <el-table-column prop="state" label="狀態" width="120"></el-table-column>
@@ -69,7 +69,7 @@ const handleDialogOpen = () => {
 const handlePageChange = (page: number) => {
   pageCurrent.value = page
 }
-const handlePutApply = (_id: string, state: '已通过'|'未通过') => {
+const handlePutApply = (_id: string, state: '已通过'|'未通过', a_id: string) => {
   store.dispatch('checks/putApply', {_id, state}).then(res=>{
     if(!res.data.errorcode){
       store
@@ -79,6 +79,10 @@ const handlePutApply = (_id: string, state: '已通过'|'未通过') => {
             store.commit('checks/updateCheckList', res.data.rets)
           }
         })
+      store.dispatch('news/putRemind', {
+            userid: a_id,
+            applicant: true
+          })
       ElMessage.success('審批成功')
     }
   })
