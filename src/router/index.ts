@@ -9,6 +9,9 @@ const checkCpt = () => import(/* webpackChunkName: "check" */ '@/views/Check/Che
 const applyCpt = () => import(/* webpackChunkName: "apply" */ '@/views/Apply/Apply.vue')
 const signCpt = () => import(/* webpackChunkName: "sign" */ '@/views/Sign/Sign.vue')
 const exceptionCpt = () => import(/* webpackChunkName: "exception" */ '@/views/Exception/Exception.vue')
+const NotAuthCpt = () => import(/* webpackChunkName: "NotAuth" */ '@/views/ErrorPage/NotAuth.vue')
+const NotFoundCpt = () => import(/* webpackChunkName: "NotFound" */ '@/views/ErrorPage/NotFound.vue')
+const NotServerCpt = () => import(/* webpackChunkName: "NotServer" */ '@/views/ErrorPage/NotServer.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -193,6 +196,25 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'login',
     component: loginCpt
+  },
+  {
+    path: '/403',
+    name: 'notAuth',
+    component: NotAuthCpt
+  },
+  {
+    path: '/404',
+    name: 'notFound',
+    component: NotFoundCpt
+  },
+  {
+    path: '/500',
+    name: 'notServer',
+    component: NotServerCpt
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/404'
   }
 ]
 
@@ -212,7 +234,12 @@ router.beforeEach((to, from , next) => {
       store.dispatch('users/getUserInfos').then((res)=>{
         if (res.data.errcode === 0) {
           store.commit('users/updateInfos', res.data.infos)
-          next()
+          // 用戶擁有的權限列
+          if(res.data.infos.permission.includes(to.name)){
+            next()
+          } else {
+            next('/403')
+          }
         }
       })
     } else {

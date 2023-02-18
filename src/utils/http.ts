@@ -1,12 +1,12 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import store from '@/store'
+import router from '@/router';
 import type { StateAll } from '@/store'
 import { ElMessage } from "element-plus";
 /**
  * https://axios-http.com/zh/docs/interceptors
  */
-
 // 创建实例时配置默认值
 const instance = axios.create({
   baseURL: 'http://api.h5ke.top/',
@@ -35,6 +35,8 @@ instance.interceptors.response.use(function (response) {
     setTimeout(() => {
       window.location.replace('/login')
     }, 1000)
+  } else if (response.data.errmsg === 'error') {
+    router.push('/500')
   }
   // 对响应数据做点什么
   return response;
@@ -52,7 +54,6 @@ interface Http {
   put: (url: string, data?: Data, config?: AxiosRequestConfig) => Promise<AxiosResponse>,
   patch: (url: string, data?: Data, config?: AxiosRequestConfig) => Promise<AxiosResponse>,
   delete: (url: string, data?: Data, config?: AxiosRequestConfig) => Promise<AxiosResponse>
-
 }
 
 const http: Http= {
